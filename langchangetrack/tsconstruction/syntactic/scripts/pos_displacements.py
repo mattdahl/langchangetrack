@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 
 import os
 from os import path
-import cPickle as pickle
+import pickle
 import numpy as np
 import scipy
 import itertools
@@ -16,7 +16,7 @@ from joblib import Parallel, delayed
 
 import gensim
 
-from langchangetrack.utils.dummy_regressor import DummyRegressor 
+from langchangetrack.utils.dummy_regressor import DummyRegressor
 from langchangetrack.utils import LocalLinearRegression
 from langchangetrack.utils import entropy
 from langchangetrack.tsconstruction.displacements import Displacements
@@ -29,23 +29,23 @@ import psutil
 from multiprocessing import cpu_count
 
 p = psutil.Process(os.getpid())
-p.set_cpu_affinity(list(range(cpu_count())))
+#p.cpu_affinity(list(range(cpu_count())))
 
 def get_vectors_pos(model, norm_embedding=True):
     return model
 
 def load_model_pos(model_path):
     """ Load the POS model from a file."""
-    return pd.read_csv(model_path) 
+    return pd.read_csv(model_path)
 
 def load_predictor_pos(predictor_path):
     """ Load the predictor model. """
     return DummyRegressor()
 
 class POSDisplacements(Displacements):
-    def __init__(self, 
+    def __init__(self,
                  data_dir,
-                 pred_dir, 
+                 pred_dir,
                  words_file,
                  timepoints,
                  num_words,
@@ -58,7 +58,7 @@ class POSDisplacements(Displacements):
                  embedding_suffix,
                  predictor_suffix,
                  workers):
-                 
+
         """ Constructor """
         # Initialize the super class.
         super(POSDisplacements, self).__init__()
@@ -99,10 +99,10 @@ class POSDisplacements(Displacements):
         for i, timepoint in enumerate(self.timepoints):
             self.models[timepoint] = loaded_models[i]
             self.predictors[timepoint] = self.load_predictor(predictor_handles[i])
-        print "Done loading predictors"
+        print("Done loading predictors")
 
     def is_present(self, timepoint, word):
-        """ Check if the word is present in the vocabulary at this timepoint. """ 
+        """ Check if the word is present in the vocabulary at this timepoint. """
         model = self.get_model(timepoint)
         return word in model.word.values
 
@@ -133,7 +133,7 @@ def main(args):
                                 args.embedding_suffix,
                                 args.predictor_suffix,
                                 workers)
-                                
+
     # Load the models and predictors
     e.load_models_and_predictors()
 

@@ -46,9 +46,9 @@ def main(args):
         rows.append(row)
 
     header = ['word'] + sorted_pos_tags
-    print "Set of POS tags in sorted order", header
+    print("Set of POS tags in sorted order", header)
     df = pd.DataFrame().from_records(rows, columns=header)
-    print "Dumping the POS distribution."
+    print("Dumping the POS distribution.")
     df.to_csv(args.outputfile, index=None, encoding='utf-8')
 
 

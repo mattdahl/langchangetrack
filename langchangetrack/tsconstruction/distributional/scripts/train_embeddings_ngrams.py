@@ -26,7 +26,7 @@ import psutil
 from multiprocessing import cpu_count
 
 p = psutil.Process(os.getpid())
-p.set_cpu_affinity(list(range(cpu_count())))
+#p.cpu_affinity(list(range(cpu_count())))
 
 
 class RepeatCorpusNTimes(object):

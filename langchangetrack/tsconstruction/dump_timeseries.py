@@ -24,7 +24,7 @@ import psutil
 from multiprocessing import cpu_count
 
 p = psutil.Process(os.getpid())
-p.set_cpu_affinity(list(range(cpu_count())))
+#p.cpu_affinity(list(range(cpu_count())))
 
 __author__ = "Vivek Kulkarni"
 __email__ = "viveksck@gmail.com"
@@ -60,7 +60,7 @@ def create_word_time_series(old_df, new_df, w, sourcexinter, destxinter, metric_
         fold = interp1d(sourcex, old_values, bounds_error=False)
         fnew = interp1d(destx, new_values, bounds_error=False)
     except:
-        print "Failed to interpolate", w
+        print("Failed to interpolate", w)
         return None, None
 
     if interpolate:
@@ -95,7 +95,7 @@ def main(args):
     n_jobs = args.workers
 
     # Load the data.
-    L, H, olddf, newdf = pickle.load(open(args.filename))
+    L, H, olddf, newdf = pickle.load(open(args.filename, 'rb'))
     words = pd.Series(olddf.word.values.ravel()).unique()
     oldrows = []
     newrows = []
@@ -114,7 +114,7 @@ def main(args):
 
     # Construct the series
     assert(len(sourcexinter) == len(destxinter))
-    chunk_sz = np.ceil(len(words)/float(n_jobs))
+    chunk_sz = int(np.ceil(len(words)/n_jobs))
     words_chunks = more_itertools.chunked(words, chunk_sz)
     timeseries_chunks = Parallel(n_jobs=n_jobs, verbose=20)(delayed(process_chunk)(chunk, create_word_time_series, olddf, newdf,
                                                                                sourcexinter, destxinter,

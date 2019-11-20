@@ -16,15 +16,15 @@ class CorpusToEmbeddings(object):
 
     def __init__(self, corpus_iter, embeddings_type, lang='en',
                  model_config={}, save_model_file=None):
-        """ Initialize the object with the corpus iterator and 
+        """ Initialize the object with the corpus iterator and
             the type of embeddings.
-        
-            The corpus iterator should just support iterating over 
+
+            The corpus iterator should just support iterating over
             sentences. It can be a list or a generator which yields
-            sentences. The embeddings type can be one of the supported 
+            sentences. The embeddings type can be one of the supported
             embedding types: 'skipgram'
-            
-            The model_config is an optional named tuple containing specific 
+
+            The model_config is an optional named tuple containing specific
             configurations parameters to be passed when training the model.
         """
 
@@ -67,7 +67,7 @@ class CorpusToEmbeddings(object):
                                             negative=0)
 
         if self.save_model_file:
-            self.model.save_word2vec_format(self.save_model_file)
+            self.model.wv.save_word2vec_format(self.save_model_file)
 
     def build(self):
         """ Trains a model on the corpus to obtain embeddings."""
@@ -79,5 +79,5 @@ class CorpusToEmbeddings(object):
 
     def save_model(self, model_file):
         """ Saves the model file. """
-        self.model.save_word2vec_format(model_file)
+        self.model.wv.save_word2vec_format(model_file)
         return

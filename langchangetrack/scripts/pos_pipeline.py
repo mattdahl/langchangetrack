@@ -45,7 +45,7 @@ if __name__ == "__main__":
                         default="INFO")
     args = parser.parse_args()
     if args.log == 'DEBUG':
-        sys.excepthook = debug
+        print('???')
     numeric_level = getattr(logging, args.log.upper(), None)
     logging.basicConfig(level=numeric_level, format=LOGFORMAT)
     main(args)

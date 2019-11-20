@@ -17,7 +17,7 @@ def main(args):
     return process(args.filename)
 
 def process(filename):
-    m = gensim.models.Word2Vec.load_word2vec_format(filename)
+    m = gensim.models.KeyedVectors.load_word2vec_format(filename)
     print "query (ctrl-c to quit): ",
     line = sys.stdin.readline()
     while line:

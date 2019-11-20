@@ -15,7 +15,7 @@ from collections import defaultdict
 from copy import deepcopy
 from random import shuffle
 import json
-import cPickle as pickle
+import pickle
 
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import NearestNeighbors
@@ -67,7 +67,7 @@ class Embeddings(object):
             self.filename = filename
             self.read_file()
 
-        if vectors != None:
+        if vectors is not None:
             self.vectors = asarray(vectors)
         if words:
             if len(set(words)) == len(words):
@@ -75,7 +75,7 @@ class Embeddings(object):
             else:
                 logging.debug("We have duplicate words.")
                 self.word_id = {u'{}_{}'.format(w, i): i for i, w in enumerate(words)}
-        self.id_word = {i: w for w, i in self.word_id.iteritems()}
+        self.id_word = {i: w for w, i in self.word_id.items()}
         self.words = [w for w, i in Embeddings.sorted_words(self.word_id)]
 
     def read_file(self):
@@ -87,15 +87,15 @@ class Embeddings(object):
         return self.vectors
 
     def __most_frequent(self, n, start=0):
-        return [x for x, y in sorted(self.word_id.iteritems(), key=lambda(x, y): y)[start:n]]
+        return [x for x, y in sorted(self.word_id.items(), key=lambda x: x[1])[start:n]]
 
     def most_frequent(self, n, start=0):
         return Embeddings(lang=self.lang, words=self.words[start:n],
                           vectors=self.vectors[start:n])
 
     def least_frequent_n(self, n):
-        return [x for x, y in sorted(self.word_id.iteritems(),
-                                     key=lambda(x, y): y, reverse=True)[:n]]
+        return [x for x, y in sorted(self.word_id.items(),
+                                     key=lambda x: x[1], reverse=True)[:n]]
 
     def words_translations(self, other, mapping, segment):
         start, end = segment
@@ -116,7 +116,7 @@ class Embeddings(object):
 
     @staticmethod
     def sorted_words(word_id):
-        return sorted(word_id.iteritems(), key=lambda(x, y): y)
+        return sorted(word_id.items(), key=lambda x: x[1])
 
     def get_common(self, other, mapping):
         """ Limit the two embeddings to the terms that are covered by the mapping."""
@@ -178,7 +178,7 @@ class Embeddings(object):
         source_words = []
         target_words = []
         map_ = mapping.map
-        for w, id_ in self.word_id.iteritems():
+        for w, id_ in self.word_id.items():
             if w not in map_:
                 source_oov[w] += 1
                 continue
@@ -256,9 +256,9 @@ class Word2VecEmbeddings(Embeddings):
                     embeddings.append([float(x) for x in ws[-size:]])
                     if i == limit:
                         break
-                except Exception, e:
-                    print "Exception", i
-                    print "Exception", line
+                except Exception as e:
+                    print("Exception", i)
+                    print("Exception", line)
         self.word_id = {w: i for i, w in enumerate(words)}
         self.vectors = asarray(embeddings)
         assert len(self.word_id) == self.vectors.shape[0]
@@ -352,7 +352,7 @@ class Evaluator(object):
         t_test.vectors = self.norm(t_test.vectors)
 
         if set(s_train.words).intersection(set(s_test.words)):
-            print (u"Train and test words are overlapping")
+            print(u"Train and test words are overlapping")
 
         s_new, t_new = operation((s_train, t_train), (s_test, t_test))
 
@@ -374,7 +374,7 @@ def linear_regression(train_embeddings, test_embeddings):
 
 def local_linear_regression(train_embeddings, test_embeddings):
     global reg_model
-    print "Using local linear regression with k = ", K_NN
+    print("Using local linear regression with k = ", K_NN)
     s_embeddings, t_embeddings = train_embeddings
     s_test, t_test = test_embeddings
     reg = LocalLinearRegression(k_nn=K_NN)
@@ -388,18 +388,18 @@ def identity(train_vectors, all_vectors):
 
 
 def evaluate_word2vec(sl, tl, source_file, target_file, method):
-    print "Proceeding to load embeddings"
+    print("Proceeding to load embeddings")
     s_ = Word2VecEmbeddings(lang=sl, filename=source_file)
     t_ = Word2VecEmbeddings(lang=tl, filename=target_file)
-    print "Loaded word embeddings"
+    print("Loaded word embeddings")
     mapping = IdentityTranslations(source=sl, target=tl, se=s_, te=t_)
-    print "Mapping done"
+    print("Mapping done")
     s, t = s_.get_common(t_, mapping)
-    print "Common vocab done"
+    print("Common vocab done")
     evaluator = Evaluator(source_embeddings=s, target_embeddings=t, metric='l2')
-    print "Evaluator constructed"
+    print("Evaluator constructed")
     assert(s.vectors.shape == t.vectors.shape)
-    print "Evaluating"
+    print("Evaluating")
     if method == 'linear':
         p1 = evaluator.evaluate(mapping, linear_regression, (0, s.vectors.shape[0]), (0, s.vectors.shape[0]))
     elif method == 'locallinear':

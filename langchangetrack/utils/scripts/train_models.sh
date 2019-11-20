@@ -11,4 +11,4 @@ echo "Processing files", $arr
 echo "Training embeddings"
 mkdir -p $WORKING_DIR/models
 echo "Models will be stored in", $WORKING_DIR/models
-parallel -vv -j ${WORKERS} --progress train_embeddings_ngrams.py -f {} -o $WORKING_DIR/models -p {/.} -e $EMBEDDINGS_TYPE -workers ${WORKERS} --epochs ${EPOCHS} -w ${WINDOW} ::: $arr
+parallel -vv -j ${WORKERS} --progress python3 /code/langchangetrack/langchangetrack/tsconstruction/distributional/scripts/train_embeddings_ngrams.py -f {} -o $WORKING_DIR/models -p {/.} -e $EMBEDDINGS_TYPE -workers ${WORKERS} --epochs ${EPOCHS} -w ${WINDOW} ::: $arr

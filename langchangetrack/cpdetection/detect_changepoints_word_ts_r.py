@@ -16,13 +16,13 @@ import psutil
 from multiprocessing import cpu_count
 
 p = psutil.Process(os.getpid())
-p.set_cpu_affinity(list(range(cpu_count())))
+#p.cpu_affinity(list(range(cpu_count())))
 
 __author__ = "Vivek Kulkarni"
 __email__ = "viveksck@gmail.com"
 
 # Global variable specifying which column index the time series
-# begins in a dataframe 
+# begins in a dataframe
 TS_OFFSET = 2
 
 LOGFORMAT = "%(asctime).19s %(levelname)s %(filename)s: %(lineno)s %(message)s"
@@ -55,7 +55,7 @@ def get_filtered_df(df, vocab_file):
         return df
 
 def get_actual_cp(df, cp_idx):
-    """ 
+    """
     Return the actual time point corresponding to the change point index.
     """
     # If the cpt detection did not find any changepoint it
@@ -66,8 +66,8 @@ def get_actual_cp(df, cp_idx):
     # Add 1 as the first column is word.
     return df.columns[cp_idx + 1]
 
-def get_pval_word_chunk(chunk, df, threshold = None): 
-    """ 
+def get_pval_word_chunk(chunk, df, threshold = None):
+    """
     Process each word in a chunk and return pvalue and changepoint.
     Here we set R changepoint class = FALSE which return pvalue.
 
@@ -81,10 +81,10 @@ def get_pval_word_chunk(chunk, df, threshold = None):
     return results
 
 
-def get_cp_word_chunk(chunk, df, threshold = None): 
-    """ 
-    Process each word in a chunk and return changepoints. Does not return 
-    pvalue. 
+def get_cp_word_chunk(chunk, df, threshold = None):
+    """
+    Process each word in a chunk and return changepoints. Does not return
+    pvalue.
     """
     results = []
     for w in chunk:
@@ -113,13 +113,13 @@ def main(args):
     else:
         threshold = None
 
-    print "CONFIG:"
-    print "FILENAME:", df_f
-    print "VOCAB FILE:", common_vocab_file
-    print "PVAL_FILE:", pval_file
-    print "COL TO DROP:", col_to_drop
-    print "NORMALIZE:", should_normalize
-    print "Threshold", threshold
+    print("CONFIG:")
+    print("FILENAME:", df_f)
+    print("VOCAB FILE:", common_vocab_file)
+    print("PVAL_FILE:", pval_file)
+    print("COL TO DROP:", col_to_drop)
+    print("NORMALIZE:", should_normalize)
+    print("Threshold", threshold)
 
     # Read the time series data
     df = pd.read_csv(df_f)
@@ -131,23 +131,23 @@ def main(args):
         norm_df = normalize_timeseries(df)
     else:
         norm_df = df
- 
-    # Drop a column if needed. 
+
+    # Drop a column if needed.
     if col_to_drop in norm_df.columns:
         cols = df.columns.tolist()
         if col_to_drop == norm_df.columns[-1]:
             time_points = cols[2:]
             new_cols = cols[0:2] + time_points[::-1]
             norm_df = norm_df[new_cols]
-            print norm_df.columns  
+            print(norm_df.columns)
         norm_df.drop(col_to_drop, axis = 1, inplace=True)
-        
-    print "Columns of the time series", norm_df.columns
-    cwords = norm_df.word.values
-    print "Number of words we are processing", len(cwords)
 
-    chunksz = np.ceil(len(cwords)/float(n_jobs))
-    if cp_pval: 
+    print("Columns of the time series", norm_df.columns)
+    cwords = norm_df.word.values
+    print("Number of words we are processing", len(cwords))
+
+    chunksz = int(np.ceil(len(cwords)/n_jobs))
+    if cp_pval:
         results = parallelize_func(cwords[:], get_pval_word_chunk, chunksz=chunksz, n_jobs=n_jobs, df = norm_df, threshold = threshold)
         cps, pvals = zip(*results)
         # R returns 1 for a very high stat significance. So we invert it as for
@@ -157,7 +157,7 @@ def main(args):
         results = zip(cwords, actual_cps, pvals)
         header = ['word', 'cp', 'pval']
         pvalue_df = pd.DataFrame().from_records(results, columns=header)
-        sdf = pvalue_df.sort(columns=['pval'])
+        sdf = pvalue_df.sort_values(by='pval')
         sdf.to_csv(pval_file, encoding='utf-8', index = None)
     else:
         results = parallelize_func(cwords[:], get_cp_word_chunk, chunksz=chunksz, n_jobs=n_jobs, df = norm_df)
@@ -166,7 +166,7 @@ def main(args):
         results = zip(cwords, actual_cps)
         header = ['word', 'cp']
         pvalue_df = pd.DataFrame().from_records(results, columns=header)
-        sdf = pvalue_df.sort(columns=['cp'])
+        sdf = pvalue_df.sort_values(by='cp')
         sdf.to_csv(pval_file, encoding='utf-8', index = None)
 
 if __name__ == "__main__":

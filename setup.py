@@ -17,7 +17,7 @@ requirements = [
     'scipy>=0.15.1',
     'more_itertools>=2.2',
     'joblib>=0.8.3-r1',
-    'gensim==0.10.3',
+    'gensim==3.8.1',
     'statsmodels>=0.5.0',
     'changepoint>=0.1.1',
     'nltk>=3.0.0',

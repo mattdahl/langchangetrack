@@ -17,7 +17,7 @@ import psutil
 from multiprocessing import cpu_count
 
 p = psutil.Process(os.getpid())
-p.set_cpu_affinity(list(range(cpu_count())))
+#p.cpu_affinity(list(range(cpu_count())))
 
 # Global variable specifying which column index the time series
 # begins in a dataframe
@@ -27,9 +27,9 @@ LOGFORMAT = "%(asctime).19s %(levelname)s %(filename)s: %(lineno)s %(message)s"
 
 
 def normalize_timeseries(df):
-    """ 
+    """
         Normalize each column of the data frame by its mean and standard
-        deviation. 
+        deviation.
     """
     dfm = df.copy(deep=True)
     dfmean = df.mean()
@@ -57,7 +57,7 @@ def get_filtered_df(df, vocab_file):
 
 
 def get_pval_word(df, word, B):
-    """ 
+    """
     Get the pvalue of a change point at each time point 't' corresponding to
     the word. Also return the number of tail successes during boot strap.
     Use a mean shift model for this.
@@ -84,7 +84,7 @@ def get_pval_word_chunk(chunk, df, B):
 
 
 def get_minpval_cp(pvalue_df_row):
-    """ 
+    """
     Get the minimum p-value and the corresponding time point for each word.
     """
     # first column is 'word', so ignore it
@@ -104,7 +104,7 @@ def get_minpval_cp(pvalue_df_row):
 
 def get_cp_pval(pvalue_df_row, zscore_df, threshold=0.0):
     """
-        Get the minimum p-value corresponding timepoint which also has 
+        Get the minimum p-value corresponding timepoint which also has
         a Z-SCORE > threshold.
 
     """
@@ -166,7 +166,7 @@ def main(args):
     cwords = norm_df.word.values
     print "Number of words we are analyzing:", len(cwords)
 
-    chunksz = np.ceil(len(cwords) / float(workers))
+    chunksz = int(np.ceil(len(cwords) / workers))
     results = parallelize_func(cwords[:], get_pval_word_chunk, chunksz=chunksz, n_jobs=workers, df=norm_df, B=args.B)
 
     pvals, num_samples = zip(*results)
@@ -187,7 +187,7 @@ def main(args):
     num_samples_df.to_csv(sample_file, encoding='utf-8')
 
     # Write the sample output
-    sdf = pvalue_df_final.sort(columns=['tpval'])
+    sdf = pvalue_df_final.sort_values(by='tpval')
     sdf.to_csv(pval_file, encoding='utf-8')
 
 if __name__ == "__main__":

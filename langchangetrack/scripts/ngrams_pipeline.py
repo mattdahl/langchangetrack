@@ -19,7 +19,7 @@ LOGFORMAT = "%(asctime).19s %(levelname)s %(filename)s: %(lineno)s %(message)s"
 
 
 def main(args):
-    train_cmd = "train_models.sh {} {} {} {} {} {}".format(args.corpus_dir, args.working_dir, args.ext, args.window, args.epochs, args.workers)
+    train_cmd = "/code/langchangetrack/langchangetrack/utils/scripts/train_models.sh {} {} {} {} {} {}".format(args.corpus_dir, args.working_dir, args.ext, args.window, args.epochs, args.workers)
     subprocess.check_call(train_cmd, shell=True)
 
     cmd = "detect_cp_distributional.sh {} {} {} {} {} {} {} {} {} {} {} {}"

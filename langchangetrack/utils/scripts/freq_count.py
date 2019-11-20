@@ -30,7 +30,7 @@ def main(args):
 
     for w, count in fd.most_common():
         tup = u"{} {}".format(w, count)
-        print tup.encode(encoding)
+        print(tup.encode(encoding))
 
 
 def debug(type_, value, tb):

@@ -36,7 +36,7 @@ def main(args):
         f.close()
 
     for w in common_vocab:
-        print w.encode(encoding)
+        print(w.encode(encoding))
 
 
 def debug(type_, value, tb):

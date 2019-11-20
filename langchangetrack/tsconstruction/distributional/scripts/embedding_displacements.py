@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 
 import os
 from os import path
-import cPickle as pickle
+import pickle
 import numpy as np
 import scipy
 import itertools
@@ -28,7 +28,7 @@ import psutil
 from multiprocessing import cpu_count
 
 p = psutil.Process(os.getpid())
-p.set_cpu_affinity(list(range(cpu_count())))
+#p.cpu_affinity(list(range(cpu_count())))
 
 
 def uniform(distances):
@@ -36,21 +36,23 @@ def uniform(distances):
 
 
 def get_vectors_sg(model, norm_embedding=True):
-    """ Return the embeddings of  a skipgram model. """
+    """ Return the embeddings of a skipgram model. """
     if norm_embedding:
-        return model.syn0norm
+        if model.vectors_norm is None:
+            model.init_sims()
+        return model.vectors_norm
     else:
-        return model.syn0
+        return model.vectors
 
 
 def load_model_skipgram(model_path):
     """ Load the skipgram model from a file in word2vec format. """
-    return gensim.models.Word2Vec.load_word2vec_format(model_path)
+    return gensim.models.KeyedVectors.load_word2vec_format(model_path)
 
 
 def load_predictor_skipgram(predictor_path):
     """ Load the predictor model. """
-    return pickle.load(open(predictor_path))
+    return pickle.load(open(predictor_path, 'rb'))
 
 
 class EmbeddingsDisplacements(Displacements):
@@ -109,8 +111,8 @@ class EmbeddingsDisplacements(Displacements):
             self.predictors[timepoint] = self.load_predictor(predictor_handles[i])
             if hasattr(self.predictors[timepoint], 'weight_func'):
                 self.predictors[timepoint].weight_func = uniform
-                print "Loaded predictor for", timepoint
-        print "Done loading predictors"
+                print("Loaded predictor for", timepoint)
+        print("Done loading predictors")
 
     def is_present(self, timepoint, word):
         """ Check if the word is present in the vocabulary at this timepoint. """
